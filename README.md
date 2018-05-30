@@ -1,2 +1,1 @@
-# typical-aws-netwok
-Typical AWS Network
+# Typical AWS Network
