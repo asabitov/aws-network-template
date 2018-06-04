@@ -1,0 +1,160 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Typical AWS Network",
+
+  "Parameters" : {
+ 
+    "VPCName" : {
+      "Type" : "String"
+    }    
+
+  },
+
+  "Resources" : {
+
+    "VPC": {
+      "Type" : "AWS::EC2::VPC",
+      "Properties" : {
+        "CidrBlock" : "10.0.0.0/16",
+        "EnableDnsSupport" : "true",
+        "EnableDnsHostnames" : "true",
+        "InstanceTenancy" : "default",
+        "Tags" : [
+          { "Key" : "Name", "Value" : { "Ref" : "VPCName" } } 
+        ]
+      }
+    },     
+
+    "InternetGateway" : {
+      "Type" : "AWS::EC2::InternetGateway",
+      "Properties" : {
+        "Tags" : [
+          { "Key" : "Name", "Value" : { "Fn::Join" :  [ "", [ { "Ref" : "VPCName" }, " - InternetGateway" ] ] } }
+        ]
+      }
+    },
+
+    "AttachInternetGateway" : {
+      "Type" : "AWS::EC2::VPCGatewayAttachment",
+      "Properties" : {
+        "InternetGatewayId" : { "Ref" : "InternetGateway" },
+        "VpcId" : { "Ref" : "VPC" }
+      }
+    }, 
+
+    "PublicSubnetA" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "AvailabilityZone" : { "Fn::Join" : [ "", [ { Ref : "AWS::Region" }, "a" ] ] },
+        "CidrBlock" : "10.0.1.0/24",
+        "MapPublicIpOnLaunch" : "true",
+        "Tags" : [ 
+          { "Key" : "Name", "Value" : { "Fn::Join" :  [ "", [ { "Ref" : "VPCName" }, " - PublicSubnetA" ] ] } }
+        ],
+        "VpcId" : { "Ref" : "VPC" }
+      }
+    },
+
+    "PublicSubnetB" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "AvailabilityZone" : { "Fn::Join" : [ "", [ { Ref : "AWS::Region" }, "b" ] ] },
+        "CidrBlock" : "10.0.2.0/24",
+        "MapPublicIpOnLaunch" : "true",
+        "Tags" : [
+          { "Key" : "Name", "Value" : { "Fn::Join" :  [ "", [ { "Ref" : "VPCName" }, " - PublicSubnetB" ] ] } }
+        ],
+        "VpcId" : { "Ref" : "VPC" }
+      }
+    },
+
+    "PrivateSubnetA" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "AvailabilityZone" : { "Fn::Join" : [ "", [ { Ref : "AWS::Region" }, "a" ] ] },
+        "CidrBlock" : "10.0.3.0/24",
+        "MapPublicIpOnLaunch" : "false",
+        "Tags" : [
+          { "Key" : "Name", "Value" : { "Fn::Join" :  [ "", [ { "Ref" : "VPCName" }, " - PrivateSubnetA" ] ] } }
+        ],
+        "VpcId" : { "Ref" : "VPC" }
+      }
+    },
+
+    "PrivateSubnetB" : {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "AvailabilityZone" : { "Fn::Join" : [ "", [ { Ref : "AWS::Region" }, "b" ] ] },
+        "CidrBlock" : "10.0.4.0/24",
+        "MapPublicIpOnLaunch" : "false",
+        "Tags" : [
+          { "Key" : "Name", "Value" : { "Fn::Join" :  [ "", [ { "Ref" : "VPCName" }, " - PrivateSubnetB" ] ] } }
+        ],
+        "VpcId" : { "Ref" : "VPC" }
+      }
+    },
+
+    "RouteTableForPublicSubnets" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "Tags" : [
+          { "Key" : "Name", "Value" : { "Fn::Join" :  [ "", [ { "Ref" : "VPCName" }, " - RouteTableForPublicSubnets" ] ] } }
+        ]
+      }
+    },
+
+    "RouteToInternet" : {
+      "Type" : "AWS::EC2::Route",
+      "Properties" : {
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "GatewayId" : { "Ref" : "InternetGateway" },
+        "RouteTableId" : { "Ref" : "RouteTableForPublicSubnets" },
+      }
+    },
+
+    "RouteTableForPrivateSubnets" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "Tags" : [
+          { "Key" : "Name", "Value" : { "Fn::Join" :  [ "", [ { "Ref" : "VPCName" }, " - RouteTableForPrivateSubnets" ] ] } }
+        ]
+      }
+    },
+
+    "SubnetRouteTableAssociationForPublicSubnetA" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties" : {
+          "SubnetId" : { "Ref" : "PublicSubnetA" },
+          "RouteTableId" : { "Ref" : "RouteTableForPublicSubnets" }
+       }
+    },
+
+    "SubnetRouteTableAssociationForPublicSubnetB" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties" : {
+          "SubnetId" : { "Ref" : "PublicSubnetB" },
+          "RouteTableId" : { "Ref" : "RouteTableForPublicSubnets" }
+       }
+    },
+
+    "SubnetRouteTableAssociationForPrivateSubnetA" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties" : {
+          "SubnetId" : { "Ref" : "PrivateSubnetA" },
+          "RouteTableId" : { "Ref" : "RouteTableForPrivateSubnets" }
+       }
+    },
+
+    "SubnetRouteTableAssociationForPrivateSubnetB" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+        "Properties" : {
+          "SubnetId" : { "Ref" : "PrivateSubnetB" },
+          "RouteTableId" : { "Ref" : "RouteTableForPrivateSubnets" }
+       }
+    }
+
+  }
+}
