@@ -1,6 +1,6 @@
 # A typical AWS network infrastructure
 
-This CloudFormation template creates network infrastructure for a typical AWS project.
+This CloudFormation template easily creates network infrastructure for a typical AWS project.
 
 Just run:
 ```
