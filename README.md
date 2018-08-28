@@ -2,7 +2,7 @@
 
 This CloudFormation template creates network infrastructure for a typical AWS project.
 
-Run:
+Just run:
 ```
 # aws cloudformation create-stack --stack-name MyVPC --template-body file://typical-aws-network.json --parameters ParameterKey=VPCName,ParameterValue="MyVPC"
 ```
