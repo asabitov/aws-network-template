@@ -247,7 +247,25 @@
                 }
             }
         },
+        "NatGatewayB": {
+            "Type": "AWS::EC2::NatGateway",
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "ElasticIPForNatGatewayB",
+                        "AllocationId"
+                    ]
+                },
+                "SubnetId": {
+                    "Ref": "PrivateSubnetB"
+                }
+            }
+        },
         "ElasticIPForNatGatewayA": {
+            "Type": "AWS::EC2::EIP",
+            "Properties": {}
+        },
+        "ElasticIPForNatGatewayB": {
             "Type": "AWS::EC2::EIP",
             "Properties": {}
         },
@@ -275,18 +293,53 @@
                 ]
             }
         },
+        "RouteTableForPrivateSubnetB": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    {
+                                        "Ref": "VPCName"
+                                    },
+                                    " - RouteTableForPrivateSubnetB"
+                                ]
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
         "RouteToInternetForPrivateSubnetA": {
             "Type": "AWS::EC2::Route",
             "Properties": {
                 "DestinationCidrBlock": "0.0.0.0/0",
-                "GatewayId": {
+                "NatGatewayId": {
                     "Ref": "NatGatewayA"
                 },
                 "RouteTableId": {
                     "Ref": "RouteTableForPrivateSubnetA"
                 }
-            },
-            "DependsOn": "NatGatewayA"
+            }
+        },
+        "RouteToInternetForPrivateSubnetB": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "NatGatewayId": {
+                    "Ref": "NatGatewayB"
+                },
+                "RouteTableId": {
+                    "Ref": "RouteTableForPrivateSubnetB"
+                }
+            }
         },
         "PrivateSubnetA": {
             "Type": "AWS::EC2::Subnet",
@@ -330,6 +383,48 @@
                 }
             }
         },
+        "PrivateSubnetB": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Ref": "AWS::Region"
+                            },
+                            "b"
+                        ]
+                    ]
+                },
+                "CidrBlock": "10.0.4.0/24",
+                "MapPublicIpOnLaunch": "false",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    {
+                                        "Ref": "VPCName"
+                                    },
+                                    " - PrivateSubnetB"
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VPC"
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "771bb7e2-6c6f-44c8-9af3-99a5147ac2b5"
+                }
+            }
+        },
         "SubnetRouteTableAssociationForPrivateSubnetA": {
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
             "Properties": {
@@ -338,6 +433,17 @@
                 },
                 "RouteTableId": {
                     "Ref": "RouteTableForPrivateSubnetA"
+                }
+            }
+        },
+        "SubnetRouteTableAssociationForPrivateSubnetB": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "PrivateSubnetB"
+                },
+                "RouteTableId": {
+                    "Ref": "RouteTableForPrivateSubnetB"
                 }
             }
         }
