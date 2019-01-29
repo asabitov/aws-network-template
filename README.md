@@ -4,5 +4,5 @@ This CloudFormation template easily creates network infrastructure for a typical
 
 Just run:
 ```
-# aws cloudformation create-stack --stack-name MyVPC --template-body file://typical-aws-network.json --parameters ParameterKey=VPCName,ParameterValue="MyVPC"
+# aws cloudformation create-stack --stack-name MyVPC --template-body file://aws-network-template.json --parameters ParameterKey=VPCName,ParameterValue="MyVPC"
 ```
