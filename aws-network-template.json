@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "Typical AWS Network",
+    "Description": "AWS network infrastructure template",
     "Parameters": {
         "VPCName": {
             "Type": "String"
@@ -68,6 +68,52 @@
             "Metadata": {
                 "AWS::CloudFormation::Designer": {
                     "id": "94883136-f425-4a22-ba73-fea0c10f2b86"
+                }
+            }
+        },
+        "RouteTableForPublicSubnets": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    {
+                                        "Ref": "VPCName"
+                                    },
+                                    " - RouteTableForPublicSubnets"
+                                ]
+                            ]
+                        }
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "c4529fb9-b207-4ae7-9209-5fdf64040dc5"
+                }
+            }
+        },
+        "RouteToInternetForPublicSubnets": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {
+                    "Ref": "InternetGateway"
+                },
+                "RouteTableId": {
+                    "Ref": "RouteTableForPublicSubnets"
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "dc52934f-aa58-4f4c-9dce-3c153c703f46"
                 }
             }
         },
@@ -155,136 +201,6 @@
                 }
             }
         },
-        "PrivateSubnetA": {
-            "Type": "AWS::EC2::Subnet",
-            "Properties": {
-                "AvailabilityZone": {
-                    "Fn::Join": [
-                        "",
-                        [
-                            {
-                                "Ref": "AWS::Region"
-                            },
-                            "a"
-                        ]
-                    ]
-                },
-                "CidrBlock": "10.0.3.0/24",
-                "MapPublicIpOnLaunch": "false",
-                "Tags": [
-                    {
-                        "Key": "Name",
-                        "Value": {
-                            "Fn::Join": [
-                                "",
-                                [
-                                    {
-                                        "Ref": "VPCName"
-                                    },
-                                    " - PrivateSubnetA"
-                                ]
-                            ]
-                        }
-                    }
-                ],
-                "VpcId": {
-                    "Ref": "VPC"
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "771bb7e2-6c6f-44c8-9af3-99a5147ac2b5"
-                }
-            }
-        },
-        "PrivateSubnetB": {
-            "Type": "AWS::EC2::Subnet",
-            "Properties": {
-                "AvailabilityZone": {
-                    "Fn::Join": [
-                        "",
-                        [
-                            {
-                                "Ref": "AWS::Region"
-                            },
-                            "b"
-                        ]
-                    ]
-                },
-                "CidrBlock": "10.0.4.0/24",
-                "MapPublicIpOnLaunch": "false",
-                "Tags": [
-                    {
-                        "Key": "Name",
-                        "Value": {
-                            "Fn::Join": [
-                                "",
-                                [
-                                    {
-                                        "Ref": "VPCName"
-                                    },
-                                    " - PrivateSubnetB"
-                                ]
-                            ]
-                        }
-                    }
-                ],
-                "VpcId": {
-                    "Ref": "VPC"
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "1576445f-5fc2-49d2-8293-1d3fa6781d66"
-                }
-            }
-        },
-        "RouteTableForPublicSubnets": {
-            "Type": "AWS::EC2::RouteTable",
-            "Properties": {
-                "VpcId": {
-                    "Ref": "VPC"
-                },
-                "Tags": [
-                    {
-                        "Key": "Name",
-                        "Value": {
-                            "Fn::Join": [
-                                "",
-                                [
-                                    {
-                                        "Ref": "VPCName"
-                                    },
-                                    " - RouteTableForPublicSubnets"
-                                ]
-                            ]
-                        }
-                    }
-                ]
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "c4529fb9-b207-4ae7-9209-5fdf64040dc5"
-                }
-            }
-        },
-        "RouteToInternetForPublicSubnets": {
-            "Type": "AWS::EC2::Route",
-            "Properties": {
-                "DestinationCidrBlock": "0.0.0.0/0",
-                "GatewayId": {
-                    "Ref": "InternetGateway"
-                },
-                "RouteTableId": {
-                    "Ref": "RouteTableForPublicSubnets"
-                }
-            },
-            "Metadata": {
-                "AWS::CloudFormation::Designer": {
-                    "id": "dc52934f-aa58-4f4c-9dce-3c153c703f46"
-                }
-            }
-        },
         "SubnetRouteTableAssociationForPublicSubnetA": {
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
             "Properties": {
@@ -317,8 +233,6 @@
                 }
             }
         },
-
-
         "NatGatewayA": {
             "Type": "AWS::EC2::NatGateway",
             "Properties": {
@@ -371,6 +285,49 @@
                 "RouteTableId": {
                     "Ref": "RouteTableForPrivateSubnetA"
                 }
+            },
+            "DependsOn": "NatGatewayA"
+        },
+        "PrivateSubnetA": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Ref": "AWS::Region"
+                            },
+                            "a"
+                        ]
+                    ]
+                },
+                "CidrBlock": "10.0.3.0/24",
+                "MapPublicIpOnLaunch": "false",
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    {
+                                        "Ref": "VPCName"
+                                    },
+                                    " - PrivateSubnetA"
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VPC"
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "771bb7e2-6c6f-44c8-9af3-99a5147ac2b5"
+                }
             }
         },
         "SubnetRouteTableAssociationForPrivateSubnetA": {
@@ -382,12 +339,9 @@
                 "RouteTableId": {
                     "Ref": "RouteTableForPrivateSubnetA"
                 }
-            },
+            }
         }
-
-
     },
-
     "Metadata": {
         "AWS::CloudFormation::Designer": {
             "ac53dcc7-cdaa-491f-822e-c4d8fdc27962": {
@@ -682,3 +636,4 @@
         }
     }
 }
+ 
