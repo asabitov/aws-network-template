@@ -1,6 +1,6 @@
 # AWS Network Infrastructure Template
 
-This CloudFormation template creates network infrastructure for a typical AWS project:
+This CloudFormation template creates network infrastructure for a typical AWS project:<br>
 2 public and 2 private subnets, all subnets have Internet access. 
 
 
