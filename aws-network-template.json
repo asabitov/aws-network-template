@@ -1,11 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "AWS network infrastructure template",
-    "Parameters": {
-        "VPCName": {
-            "Type": "String"
-        }
-    },
     "Resources": {
         "VPC": {
             "Type": "AWS::EC2::VPC",
@@ -18,7 +13,15 @@
                     {
                         "Key": "Name",
                         "Value": {
-                            "Ref": "VPCName"
+                            "Fn::Join": [
+                                "",
+                                [
+                                    {
+                                        "Ref": "AWS::StackName"
+                                    },
+                                    " - VPC"
+                                ]
+                            ]
                         }
                     }
                 ]
@@ -35,7 +38,7 @@
                                 "",
                                 [
                                     {
-                                        "Ref": "VPCName"
+                                        "Ref": "AWS::StackName"
                                     },
                                     " - InternetGateway"
                                 ]
@@ -70,7 +73,7 @@
                                 "",
                                 [
                                     {
-                                        "Ref": "VPCName"
+                                        "Ref": "AWS::StackName"
                                     },
                                     " - RouteTableForPublicSubnets"
                                 ]
@@ -116,7 +119,7 @@
                                 "",
                                 [
                                     {
-                                        "Ref": "VPCName"
+                                        "Ref": "AWS::StackName"
                                     },
                                     " - PublicSubnetA"
                                 ]
@@ -153,7 +156,7 @@
                                 "",
                                 [
                                     {
-                                        "Ref": "VPCName"
+                                        "Ref": "AWS::StackName"
                                     },
                                     " - PublicSubnetB"
                                 ]
@@ -199,8 +202,24 @@
                 },
                 "SubnetId": {
                     "Ref": "PublicSubnetA"
-                }
-            }
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    {
+                                        "Ref": "AWS::StackName"
+                                    },
+                                    " - NatGatewayA"
+                                ]
+                            ]
+                        }
+                    }
+                ]
+            }   
         },
         "NatGatewayB": {
             "Type": "AWS::EC2::NatGateway",
@@ -213,8 +232,24 @@
                 },
                 "SubnetId": {
                     "Ref": "PublicSubnetB"
-                }
-            }
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    {
+                                        "Ref": "AWS::StackName"
+                                    },
+                                    " - NatGatewayB"
+                                ] 
+                            ]
+                        }
+                    }
+                ]
+            }    
         },
         "ElasticIPForNatGatewayA": {
             "Type": "AWS::EC2::EIP",
@@ -238,7 +273,7 @@
                                 "",
                                 [
                                     {
-                                        "Ref": "VPCName"
+                                        "Ref": "AWS::StackName"
                                     },
                                     " - RouteTableForPrivateSubnetA"
                                 ]
@@ -262,7 +297,7 @@
                                 "",
                                 [
                                     {
-                                        "Ref": "VPCName"
+                                        "Ref": "AWS::StackName"
                                     },
                                     " - RouteTableForPrivateSubnetB"
                                 ]
@@ -320,7 +355,7 @@
                                 "",
                                 [
                                     {
-                                        "Ref": "VPCName"
+                                        "Ref": "AWS::StackName"
                                     },
                                     " - PrivateSubnetA"
                                 ]
@@ -357,7 +392,7 @@
                                 "",
                                 [
                                     {
-                                        "Ref": "VPCName"
+                                        "Ref": "AWS::StackName"
                                     },
                                     " - PrivateSubnetB"
                                 ]
