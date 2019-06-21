@@ -1,4 +1,4 @@
-# AWS VPC Infrastructure Template
+# AWS VPC Template
 
 This CloudFormation template creates network infrastructure for a typical AWS project: 
 * 2 public and 2 private subnets
